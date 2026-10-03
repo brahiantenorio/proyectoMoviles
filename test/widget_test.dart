@@ -1,30 +1,35 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:proyecto_moviles/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('Carga inicial y navegación de la app', (WidgetTester tester) async {
+    // Construir la aplicación
     await tester.pumpWidget(const MyApp());
+    await tester.pump(const Duration(milliseconds: 100));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verificar que los destinos de navegación están presentes
+    expect(find.text('Future & Async'), findsOneWidget);
+    expect(find.text('Cronómetro'), findsOneWidget);
+    expect(find.text('Isolates'), findsOneWidget);
+    expect(find.text('Taller 1'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verificar que la primera vista (Future & Async) se muestra inicialmente
+    expect(find.text('Asincronía: Future / async / await'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Navegar a la pestaña de Cronómetro
+    await tester.tap(find.text('Cronómetro'));
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // Verificar que la vista de cronómetro está activa con botón Iniciar
+    expect(find.text('Cronómetro con Timer'), findsOneWidget);
+    expect(find.text('Iniciar'), findsOneWidget);
+
+    // Navegar a la pestaña de Isolates
+    await tester.tap(find.text('Isolates'));
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // Verificar que la vista de Isolate está activa
+    expect(find.text('Isolate para Tarea Pesada'), findsOneWidget);
+    expect(find.text('Ejecutar con Isolate.spawn (UI Fluida)'), findsOneWidget);
   });
 }
