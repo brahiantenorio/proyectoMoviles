@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'screens/future_async_screen.dart';
+import 'screens/timer_screen.dart';
+import 'screens/isolate_screen.dart';
+import 'screens/taller1_screen.dart';
 
 void main() => runApp(const MyApp());
 
@@ -9,64 +13,77 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Taller 1',
-      theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
-      home: const HomePage(),
+      title: 'Taller Segundo Plano - Electiva Móviles',
+      theme: ThemeData(
+        colorSchemeSeed: Colors.indigo,
+        useMaterial3: true,
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        colorSchemeSeed: Colors.indigo,
+        useMaterial3: true,
+        brightness: Brightness.dark,
+      ),
+      themeMode: ThemeMode.system,
+      home: const MainNavigationScreen(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class MainNavigationScreen extends StatefulWidget {
+  const MainNavigationScreen({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
-  bool _cambiado = false;
-  bool _modoActivo = false;
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
+  int _currentIndex = 0;
 
-  String get _titulo => _cambiado ? 'Título cambiado' : 'Título inicial';
-
-  void _cambiarTitulo() {
-    setState(() {
-      _cambiado = !_cambiado;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('El título cambió a: $_titulo')),
-    );
-  }
+  // Las 4 pantallas disponibles
+  final List<Widget> _screens = const [
+    FutureAsyncScreen(),
+    TimerScreen(),
+    IsolateScreen(),
+    Taller1Screen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_titulo)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Widget adicional 1: Image
-            Image.asset('assets/images/logo.jpg', height: 120),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _cambiarTitulo,
-              child: const Text('Cambiar título'),
-            ),
-            const SizedBox(height: 24),
-            // Widget adicional 2: SwitchListTile
-            SwitchListTile(
-              title: const Text('Activar opción'),
-              value: _modoActivo,
-              onChanged: (valor) {
-                setState(() {
-                  _modoActivo = valor;
-                });
-              },
-            ),
-          ],
-        ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (int index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.cloud_sync_outlined),
+            selectedIcon: Icon(Icons.cloud_sync),
+            label: 'Future & Async',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.timer_outlined),
+            selectedIcon: Icon(Icons.timer),
+            label: 'Cronómetro',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.memory_outlined),
+            selectedIcon: Icon(Icons.memory),
+            label: 'Isolates',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.widgets_outlined),
+            selectedIcon: Icon(Icons.widgets),
+            label: 'Taller 1',
+          ),
+        ],
       ),
     );
   }
