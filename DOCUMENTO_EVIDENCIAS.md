@@ -2,12 +2,12 @@
 
 ---
 
-**Asignatura:** Electiva Profesional I - Proyecto Móviles  
-**Estudiante:** Brahian Tenorio  
-**Institución:** Universidad  
-**Fecha:** Octubre 2026  
-**URL del Repositorio:** [https://github.com/brahiantenorio/proyectoMoviles](https://github.com/brahiantenorio/proyectoMoviles)  
-**Ramas disponibles en GitHub:** `main`, `dev`, `feature/taller_segundo_plano`  
+**Asignatura:** Electiva Profesional I - Proyecto Móviles
+**Estudiante:** Brahian Tenorio
+**Institución:** Universidad
+**Fecha:** Octubre 2026
+**URL del Repositorio:** [https://github.com/brahiantenorio/proyectoMoviles](https://github.com/brahiantenorio/proyectoMoviles)
+**Ramas disponibles en GitHub:** `main`, `dev`, `feature/taller_segundo_plano`
 
 ---
 
@@ -40,6 +40,7 @@
 ## 1. Evidencia 1: Asincronía con Future / async / await
 
 ### 1.1 Descripción Técnica
+
 Se implementó un servicio simulado (`MockDataService`) que utiliza `Future.delayed` con una latencia de **2.5 segundos** para recrear una solicitud I/O hacia un servidor remoto. La interfaz gráfica `FutureAsyncScreen` consume este servicio utilizando la sintaxis moderna `async / await`.
 
 Durante la espera asíncrona, el bucle de eventos (*Event Loop*) de Dart suspende únicamente la ejecución de la función de consulta, permitiendo que el hilo principal continúe pintando la UI y procesando toques del usuario (verificado mediante el botón de prueba de fluidez interactiva).
@@ -47,51 +48,36 @@ Durante la espera asíncrona, el bucle de eventos (*Event Loop*) de Dart suspend
 ---
 
 ### 1.2 Captura del Estado: Cargando...
+
 > **Descripción:** Al pulsar "Consultar (Éxito)" o "Simular Error", la interfaz pasa inmediatamente al estado `FutureState.loading`. Se muestra un `CircularProgressIndicator` y una barra lineal sin bloquear el resto de la interfaz.
 
-```
-+-------------------------------------------------------------+
-|                                                             |
-|           [ INSERTAR AQUÍ CAPTURA DE PANTALLA:              |
-|              ESTADO CARGANDO CON INDICADOR ]                |
-|                                                             |
-+-------------------------------------------------------------+
-```
+![Texto alternativo](assets/images/estado_cargando.png)
+
 *Figura 1.1: Estado "Cargando..." con indicador de progreso activo mientras el Future se resuelve.*
 
 ---
 
 ### 1.3 Captura del Estado: Éxito
+
 > **Descripción:** Una vez completados los 2.5 segundos, el `Future` retorna la lista de registros estructurados. La interfaz actualiza el estado a `FutureState.success`, desplegando las tarjetas informativas con las métricas obtenidas.
 
-```
-+-------------------------------------------------------------+
-|                                                             |
-|           [ INSERTAR AQUÍ CAPTURA DE PANTALLA:              |
-|                 ESTADO ÉXITO CON DATOS ]                    |
-|                                                             |
-+-------------------------------------------------------------+
-```
+
 *Figura 1.2: Estado "Éxito" renderizando los datos recibidos del servicio simulado.*
 
----
+![Texto alternativo](assets/images/captura_exito.png)
 
 ### 1.4 Captura del Estado: Error
+
 > **Descripción:** Al pulsar "Simular Error", el servicio lanza intencionalmente una excepción `Exception('Error 500...')`. Mediante el bloque `try-catch`, la UI captura la excepción y pasa al estado `FutureState.error`, mostrando un banner rojo informativo y la opción de reintentar.
 
-```
-+-------------------------------------------------------------+
-|                                                             |
-|           [ INSERTAR AQUÍ CAPTURA DE PANTALLA:              |
-|            ESTADO ERROR CON MENSAJE DE FALLO ]              |
-|                                                             |
-+-------------------------------------------------------------+
-```
+
+
 *Figura 1.3: Estado "Error" con descripción de la falla y botón de reintento.*
 
----
+![Texto alternativo](assets/images/simular_error.png)
 
 ### 1.5 Evidencia de Consola: Orden de Ejecución
+
 > **Descripción:** Salida generada en la consola (visible tanto en la terminal de Flutter como en el visor de logs integrado en la aplicación), demostrando el orden secuencial cronológico: **1. ANTES**, **2. DURANTE**, y **3. DESPUÉS**.
 
 ```text
@@ -107,6 +93,7 @@ Durante la espera asíncrona, el bucle de eventos (*Event Loop*) de Dart suspend
 [Future/UI] 3. [DESPUÉS]: Éxito recibido en 2503 ms. Procesando 4 registros.
 [Future/UI] 3. [DESPUÉS]: Actualizando estado a "Éxito".
 ```
+
 *Figura 1.4: Trazas de consola que evidencian el orden estricto de ejecución en el ciclo asíncrono.*
 
 ---
@@ -116,39 +103,33 @@ Durante la espera asíncrona, el bucle de eventos (*Event Loop*) de Dart suspend
 ## 2. Evidencia 2: Cronómetro con Timer y Limpieza de Recursos
 
 ### 2.1 Descripción Técnica
+
 Se desarrolló la pantalla `TimerScreen` implementando un cronómetro de alta precisión basado en `Timer.periodic` con un intervalo de **100 milisegundos** (décimas de segundo). El diseño visual cuenta con un marcador digital de alto contraste (`00:00:00.0`).
 
 Cuenta con los cuatro botones requeridos por la especificación:
+
 1. **Iniciar:** Crea la instancia de `Timer.periodic`.
 2. **Pausar:** Detiene el avance y **cancela el Timer** inmediatamente (`_timer.cancel(); _timer = null;`).
 3. **Reanudar:** Recrea el `Timer.periodic` continuando desde el valor acumulado.
 4. **Reiniciar:** Cancela el temporizador y restablece el acumulador en cero.
 
-**Limpieza de Recursos (`dispose`):**  
+**Limpieza de Recursos (`dispose`):**
 Para evitar fugas de memoria (*memory leaks*), se sobreescribe el método `dispose()` en el ciclo de vida del widget para cancelar activamente cualquier temporizador en ejecución al salir de la pantalla.
 
 ---
 
 ### 2.2 Capturas de Funcionamiento: Iniciar, Pausar, Reanudar y Reiniciar
 
-```
-+------------------------------------+------------------------------------+
-|                                    |                                    |
-|   [ CAPTURA: BOTÓN INICIAR Y       |     [ CAPTURA: BOTÓN PAUSAR Y      |
-|     MARCADOR EN MARCHA ]           |       ESTADO EN PAUSA ]            |
-|                                    |                                    |
-+------------------------------------+------------------------------------+
-|                                    |                                    |
-|   [ CAPTURA: BOTÓN REANUDAR Y      |     [ CAPTURA: BOTÓN REINICIAR     |
-|     REGISTRO DE VUELTAS ]          |       EN 00:00.0 ]                 |
-|                                    |                                    |
-+------------------------------------+------------------------------------+
-```
+![Texto alternativo](assets/images/inicio_cronometro.png.png)
+![Texto alternativo](assets/images/en_marcha_cronometro.png)
+![Texto alternativo](assets/images/reanudar_cronometro.png)
+
 *Figura 2.1: Ciclo completo del cronómetro en sus cuatro fases operativas.*
 
 ---
 
 ### 2.3 Evidencia de Consola: Limpieza de Recursos
+
 ```text
 [Timer] INICIAR: Creando Timer.periodic (intervalo: 100ms)...
 [Timer] Cronómetro en marcha.
@@ -160,6 +141,7 @@ Para evitar fugas de memoria (*memory leaks*), se sobreescribe el método `dispo
 [Timer] Cronómetro reiniciado a 00:00:00.0.
 [Timer/Lifecycle] DISPOSE: Timer cancelado exitosamente al salir de la pantalla.
 ```
+
 *Figura 2.2: Logs confirmando la cancelación activa del Timer al pausar, reiniciar y en dispose().*
 
 ---
@@ -169,6 +151,7 @@ Para evitar fugas de memoria (*memory leaks*), se sobreescribe el método `dispo
 ## 3. Evidencia 3: Isolate para Tareas Pesadas (CPU-Bound)
 
 ### 3.1 Descripción Técnica
+
 En Dart, una tarea que satura la CPU por varios segundos dentro del hilo principal congelará toda la aplicación, interrumpiendo las animaciones y perdiendo eventos táctiles.
 
 Para resolver esto, se implementó `HeavyComputationService.heavyWorker`, una función estática de cómputo intensivo (50 millones de cálculos matemáticos modulares y cuadráticos). La ejecución se realiza en un hilo separado del sistema operativo mediante **`Isolate.spawn`**, enviando los parámetros mediante una clase estructurada (`IsolateTaskParams`) que contiene el `SendPort` para la comunicación por paso de mensajes.
@@ -176,22 +159,17 @@ Para resolver esto, se implementó `HeavyComputationService.heavyWorker`, una fu
 ---
 
 ### 3.2 Captura de la Pantalla con Métricas y Tiempos de Ejecución
+
 > **Descripción:** La pantalla `IsolateScreen` muestra la hora exacta de inicio, la hora de finalización, la duración total en milisegundos y el resultado final calculado.
 
-```
-+-------------------------------------------------------------+
-|                                                             |
-|           [ INSERTAR AQUÍ CAPTURA DE PANTALLA:              |
-|             TARJETA DE TIEMPOS, DURACIÓN EN MS              |
-|                 Y RESULTADOS DEL ISOLATE ]                  |
-|                                                             |
-+-------------------------------------------------------------+
-```
+![Texto alternativo](assets/images/tarea_pesada.png)
+
 *Figura 3.1: Pantalla con visualización detallada de los tiempos de inicio, fin y duración en milisegundos.*
 
 ---
 
 ### 3.3 Evidencia de Consola: Mensajes entre Hilos
+
 ```text
 ============================================================
 [Isolate/Main] 1. INICIO: Solicitud de tarea pesada con 50000000 operaciones.
@@ -208,22 +186,16 @@ Para resolver esto, se implementó `HeavyComputationService.heavyWorker`, una fu
 [Isolate/Main] 5. Cerrando ReceivePort y liberando Isolate.
 ============================================================
 ```
+
 *Figura 3.2: Trazas de consola evidenciando el intercambio de mensajes bidireccional.*
 
 ---
 
 ### 3.4 Demostración de No-Bloqueo de la UI
-> **Descripción:** En la vista se integró un componente con rotación continua a 60 fotogramas por segundo y un botón contador táctil. Mientras el Isolate secundario procesaba los 50 millones de iteraciones al 100% de carga, la animación continuó girando con fluidez absoluta y los toques en pantalla se registraron en tiempo real sin una sola caída de cuadros.
 
-```
-+-------------------------------------------------------------+
-|                                                             |
-|           [ INSERTAR AQUÍ CAPTURA DE PANTALLA:              |
-|           MONITOR DE FLUIDEZ A 60 FPS Y TOQUES              |
-|             MIENTRAS EL ISOLATE ESTÁ ACTIVO ]               |
-|                                                             |
-+-------------------------------------------------------------+
-```
+> **Descripción:** En la vista se integró un componente con rotación continua a 60 fotogramas por segundo y un botón contador táctil. Mientras el Isolate secundario procesaba los 50 millones de iteraciones al 100% de carga, la animación continuó girando con fluidez absoluta y los toques en pantalla se registraron en tiempo real sin una sola caída de cuadros.
+![Texto alternativo](assets/images/isolate_imagen.png)
+
 *Figura 3.3: Comprobación de UI totalmente responsiva durante el procesamiento en segundo plano.*
 
 ---
